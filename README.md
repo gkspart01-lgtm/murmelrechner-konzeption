@@ -8,12 +8,13 @@ Ein mechanischer Rechner, in dem Schwerkraft den Murmelstrom antreibt und ein Mo
 
 ## Aktueller Architekturstand
 
-Als passendstes theoretisches Modell wird eine vorwärts arbeitende Queue-Maschine untersucht. Als Codierungsbaseline dient vorläufig eine Murmel pro balanciertem Trit; Zwei-Murmel-Ternär und Ein-Murmel-Binär bleiben mechanische Vergleichsvarianten. Das Dokument trennt gesicherte Theorie, Designentscheidungen und noch zu prototypisierende Mechanik.
+Zwei Rechenmodelle stehen ernsthaft zur Auswahl: eine vorwärts arbeitende **Queue-Maschine** und ein **Kahn-Prozessnetz (KPN)** mit mehreren Prozessen und FIFO-Kanälen. Die Queue-Maschine ist die einfachere Arbeitsbaseline für „Programm auf dem Band“; KPN wird vor allem durch die Idee attraktiv, volle Puffer durch zusätzliche Bahnsegmente dynamisch zu erweitern. Als Codierungsbaseline dient vorläufig eine Murmel pro balanciertem Trit; Zwei-Murmel-Ternär und Ein-Murmel-Binär bleiben Vergleichsvarianten.
 
 ## Status und nächste Schritte
 
-Dies ist ein Konzept, kein getesteter Bauplan. Es gibt noch keinen konkreten Queue-Interpreter, Simulator oder ausführbaren Primzahlprogramm-Code. Der nächste Schritt ist die formale Interpreter-Spezifikation samt Simulator; danach folgen vergleichbare Prototypen für Lesen, Schreiben, Rückführung und die verschiedenen Murmelcodierungen.
+Dies ist ein Konzept, kein getesteter Bauplan. Es gibt noch keinen konkreten Interpreter, Simulator oder ausführbaren Primzahlprogramm-Code. Der nächste Schritt ist die Modellauswahl anhand des Vergleichs, dann die konkrete Interpreter-/Prozessgraph-Spezifikation samt Simulator und danach vergleichbare Prototypen für Lesen, Schreiben, Rückführung, erweiterbare Puffer und die verschiedenen Murmelcodierungen.
 
-## Dokument
+## Dokumente
 
 - [Murmelrechner-Konzeptionszwischenstand](docs/Murmelrechner_Konzeptionszwischenstand.md)
+- [Rechenmodelle im Vergleich: Queue-Maschine und KPN](docs/Modellvergleich_Queue_und_KPN.md)

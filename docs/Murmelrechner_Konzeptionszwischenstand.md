@@ -4,19 +4,14 @@
 
 ## 1. Kurzentscheidung
 
-Der passendste Ausgangspunkt für Falkos konkrete Bewegungs-Idee ist **kein unverändert übernommenes klassisches Turingband**, sondern ein **deterministischer FIFO-/Warteschlangenrechner (Queue-Maschine)**:
+Derzeit stehen zwei Rechenmodelle ernsthaft zur Auswahl: (A) eine Queue-Maschine mit einer zentral gelesenen Murmelfolge und (B) ein Kahn-Prozessnetz (KPN) mit mehreren Prozessen und FIFO-Kanälen. Die Queue-Maschine bleibt die einfachere Arbeitsbaseline für „Programm auf dem Band“; Falkos Idee, volle Puffer durch zusätzliche Bahnsegmente zu erweitern, macht KPN jedoch zu einer echten Alternative. **Es gibt noch keine endgültige Architekturentscheidung.** Der ausführliche Vergleich und die Entscheidungskriterien stehen in [Rechenmodelle im Vergleich](Modellvergleich_Queue_und_KPN.md).
 
-- Die **Murmeln bilden eine geordnete Symbolfolge**.
-- Die Folge bewegt sich durch Schwerkraft an einer **feststehenden Lese-/Bearbeitungsstelle** vorbei.
-- Ein Schritt liest das vorderste Symbol, ändert den endlichen mechanischen Steuerzustand und gibt null oder mehrere neue Symbole am Ende der Folge aus.
-- Das **Programm ist als Symbolfolge auf dem Murmelband** codiert und wird von einem fest eingebauten universellen Interpreter ausgeführt. Der Interpreter ist die feste Mechanik; das konkrete Programm ist austauschbarer Bandinhalt.
-- Für die erste Ausbaustufe wird **ein Programmablauf seriell** ausgeführt. Es dürfen viele Murmeln gleichzeitig in der Bahn sein, aber nicht mehrere unabhängige Berechnungen gleichzeitig laufen.
-- Als vorläufige Symbolcodierung wird **eine Murmel pro balanciertem Ternärsymbol** gewählt: klein = −1, mittel = 0, groß = +1. Die früher erwogene Zweikugel-Kodierung wird nicht als Grundlage verwendet.
-- Der Motor ist ausschließlich Transportenergie für den Rückhub. Kamera/Tablet sind ausschließlich Ausgabe und Beobachtung, ohne Rückwirkung auf die Berechnung.
+- In der **Queue-Variante** bilden die Murmeln eine geordnete Symbolfolge, die durch Schwerkraft an einer feststehenden Bearbeitungsstelle vorbeiläuft. Ein Schritt liest das vorderste Symbol, ändert den endlichen mechanischen Zustand und fügt Ausgabesymbole hinten an.
+- In der **KPN-Variante** sind mehrere Prozesse über gerichtete Murmelkanäle verbunden; mehrere Rechenpfade können gleichzeitig Fortschritt machen. Für austauschbaren Code auf einem Band braucht KPN einen passenden Interpreter-Prozess.
+- Der **Motor** hebt Murmeln zurück; er ist nicht Teil der Berechnungslogik. Kamera/Tablet dienen nur der Anzeige und Beobachtung.
+- Für beide Varianten gilt vorläufig dieselbe Symbolcodierungs-Arbeitsbaseline: eine Murmel pro balanciertem Ternärsymbol; Ein-Murmel-Binär und Zwei-Murmel-Ternär bleiben Vergleichsvarianten.
 
-Queue-Speicher passen natürlicher zu einem stets vorwärts laufenden Symbolstrom als die klassische Turingmaschine, deren Kopf links, rechts oder auf derselben Bandzelle stehen bleiben kann.[1] Geeignete deterministische Queue-Automaten sind theoretisch gleich mächtig wie Turingmaschinen; das beweist aber noch nicht, dass eine konkrete, kompakte mechanische Universal-Queue-Maschine bereits feststeht.[10]
-
-**Wichtig:** Universalität gilt nur für das idealisierte Modell mit unbegrenzter Queue, Symbolversorgung und Laufzeit. Ein realer Druck mit endlichem Band, endlichem Murmelvorrat und endlichen Puffern ist stets kapazitätsbegrenzt. Die Maschine kann eine skalierbare universelle *Architektur* anstreben; ein konkreter Aufbau kann nur bis zu seiner physischen Grenze rechnen.
+**Wichtig:** Universalität gilt nur für das idealisierte Modell mit unbegrenztem Speicher, Symbolvorrat und Laufzeit. Ein realer Druck mit endlichen Bahnen und endlich vielen Murmeln ist kapazitätsbegrenzt; dynamische Puffersegmente vergrößern diese Grenze, beseitigen sie aber nicht.
 
 ## 2. Festgehaltene Anforderungen und bewusste Auslegungen
 
@@ -26,10 +21,10 @@ Queue-Speicher passen natürlicher zu einem stets vorwärts laufenden Symbolstro
 | Rechenart | Rein mechanische Logik. Elektronik darf nur die Kamera-/Tablet-Ausgabe und den nötigen Motorantrieb betreffen; sie darf keine Zustände berechnen oder Weichen steuern. |
 | Antrieb | Schwerkraft treibt den Rechenfluss; Motor hebt Murmeln zurück. Die Zickzack-/Sägezahn-Treppe ist eine plausible Aufzugsidee, aber noch kein validiertes Bauteil. |
 | Kopf und Band | Der Kopf bleibt fest; das Murmelband bewegt sich darunter hindurch. Das ist eine harte Architekturvorgabe, keine bloße Darstellungsvariante. |
-| Mehrere Murmeln | Viele Murmeln dürfen gleichzeitig im System unterwegs sein. V1 verarbeitet jedoch jeweils ein Symbolereignis an der Bearbeitungsstelle; echte parallele Prozesse werden zurückgestellt. |
+| Mehrere Murmeln | Viele Murmeln dürfen gleichzeitig unterwegs sein. Im Queue-Kandidaten bleibt die Berechnungslogik seriell; im KPN-Kandidaten können unabhängige Prozesse gleichzeitig arbeiten. Ob echte Parallelität V1-Anforderung ist, wird durch den Modellvergleich entschieden. |
 | Programm | Das austauschbare Programm ist Murmelband-Inhalt. Es wird nicht fest in die Mechanik verdrahtet. Eine feste mechanische Steuerung interpretiert die codierte Programmbeschreibung. |
 | Ausgabe | Kamera liest die tatsächlichen Ausgabesymbole; die App zeigt den Verlauf und wandelt die gewählte Zahlendarstellung in Dezimalzahlen um. Sie ist ein Beobachter, kein Rechnerteil. Bei balanciertem Ternär zeigt sie also Ternär-zu-Dezimal an, nicht zwingend Binär-zu-Dezimal. |
-| CPU/ALU/Takt | Keine getrennte klassische CPU/ALU und kein zeitbasierter globaler Takt in V1. Die feste mechanische Steuerung hält einen endlichen Zustand; die FIFO-Übergänge führen die Rechenschritte aus. Addition/Vergleich werden zunächst als Programmabläufe über Symbole realisiert. Ein Ereignis und eine mechanische Rückstellung trennen Verarbeitungsschritte. |
+| CPU/ALU/Takt | Keine getrennte klassische CPU/ALU und kein zeitbasierter globaler Takt sind für eine der beiden Varianten Voraussetzung. Im Queue-Modell führt ein fester Zustand serielle Übergänge aus; im KPN haben Prozessmodule eigene Zustände und reagieren auf eintreffende/fehlende Kanaltokens. Addition/Vergleich können als Programmabläufe über Symbole realisiert werden. |
 | Beispielanwendung | Erstes verbindliches Belastungsziel: vollständiges, ausführbares Programm, das Primzahlen bis einschließlich **N = 30** ausgibt. N = 100 ist ein späterer Ausbau. Keine Laufzeitvorgabe; langsamer Betrieb ist akzeptabel. |
 | Fertigung | 3D-Druck für die modularen Mechanikteile. Als vernünftige Arbeitsannahme sind handelsübliche Murmeln/Kugeln sowie passive Achsen, Stifte, Lager und Federn erlaubt. Elektronische Rechen- oder Steuersensoren sind ausgeschlossen. |
 
@@ -51,19 +46,19 @@ Das passt zur gewünschten Mechanik: Murmeln laufen vorwärts, die feste Station
 
 **Programm auf dem Band:** Das Ziel ist eine feste universelle Queue-Steuerung, die eine Programmbeschreibung als Teil des anfänglichen Queue-Inhalts interpretiert. Das Prinzip, eine Programmbeschreibung samt Eingabe als Daten einzuspeisen, ist für universelle Maschinen etabliert.[2] Für dieses Projekt muss aber noch eine konkrete universelle Queue-Interpreter-Konstruktion mit Symbolalphabet, Anfangsformat und Simulation bewiesen bzw. aus einer belegten Konstruktion übernommen werden. Bis dahin ist „Queue-Maschine“ eine begründete Architekturwahl, noch keine fertige Universalitätsimplementierung.
 
-### 3.3 Warum die anderen Kandidaten nicht V1 werden
+### 3.3 Die weiteren Kandidaten und ihr Stand
 
 | Kandidat | Faktencheck und Entscheidung |
 |---|---|
 | **Zwei-Zähler-/Minsky-Maschine** | Geeignete Zwei-Zähler-Modelle sind universell; gebräuchliche Befehle sind Zähler erhöhen sowie bedingt verringern/bei Null verzweigen.[5] Als Murmelzähler braucht jeder Inkrementvorgang eine verfügbare Murmel, und ein zuverlässiger Nulltest verlangt eine eindeutig ruhende, abgegrenzte Zählerbahn. Unärspeicherung und Vorratsverwaltung machen das weniger passend als einen Symbolstrom. Nicht V1. |
 | **Tag-/Post-System** | Historisch eng mit universellen Queue-Produktionen verbunden; es kann ein später konkreter Kandidat für den Interpreter sein.[4] Noch keine Entscheidung für eine bestimmte Tag-System-Variante, weil deren Regeln und Programmcodierung erst festgelegt werden müssen. |
-| **Kahn-Prozessnetz** | Gut für echte Parallelität, aber die klassische Semantik nutzt FIFO-Kanäle unbegrenzter Kapazität; Lesen blockiert, Schreiben ist nicht blockierend.[8] Endliche mechanische Puffer können Rückstau verursachen; daraus folgt nicht automatisch immer ein Deadlock, aber die klassische Garantie kann nicht unbesehen auf endliche Murmelbahnen übertragen werden. Parallelität daher nicht V1. |
+| **Kahn-Prozessnetz** | Jetzt ernsthafte Alternative: echte parallele Prozesse und mehrere getrennte FIFO-Bahnen passen gut zu sichtbaren Verzweigungen. Die abstrakten Kanäle sind unbegrenzt; Falkos erweiterbaren Bahnen könnten diese Annahme praktisch annähern, aber endliche Vorräte, Erweiterungssteuerung und logische Blockierungen bleiben zu prüfen.[8] Für ein Programm-als-Band braucht es einen Interpreter-Prozess; eine Prozessgraph-Geometrie allein ist nicht dasselbe wie austauschbarer Bandcode. Vergleich in der Zusatzseite. |
 | **Regel 110** | Der bekannte Universalitätsnachweis definiert eine unendliche eindimensionale Zellreihe mit synchroner Aktualisierung.[6] Ein fest dimensionierter endlicher Ring hat nur endlich viele Konfigurationen und kann nicht unbeschränkt universell sein. Mit wachsendem Speicher wäre das ein anderes, erheblich schwieriger zu erweiterndes System. Nicht V1. |
 | **Klassische Turingmaschine / Zwei Stapel** | Eine klassische Turingmaschine ist theoretisch universell.[1] Die Zwei-Stapel-Idee benötigt Push/Pop an den jeweiligen Speicherenden; das ist nicht die vorgegebene Einwegbewegung. Nicht die direkteste physische Abstraktion. |
 
 ## 4. Informationscodierung: Entscheidung für eine Murmel pro balanciertem Trit
 
-### 4.1 V1-Codierung
+### 4.1 Symbolcodierung (Arbeitsbaseline)
 
 Für die erste Konzeption gilt vorläufig:
 
@@ -79,7 +74,7 @@ Für die formale Erstfassung wird eine Murmel pro Trit als Arbeitsbaseline verwe
 
 Ein einfacher Größen-Sortierer braucht für drei Größen zwei mechanische Entscheidungsschwellen. Das ist aufwendiger als eine Binärweiche, aber grundsätzlich konstruierbar. **Nicht belegt ist**, dass die drei Größen auf dem konkreten Drucker und in der gewählten Rinne zuverlässig genug unterschieden werden. Falls der 3-Größen-Prototyp scheitert, wird die Zweikugel-Ternärkodierung gegen Ein-Murmel-Binär getestet; ein automatischer Rückfall auf eine Variante ist noch nicht begründet.
 
-Reine Wertstellenbelegung ohne Rahmen reicht nicht: Programm, Zahl, Parameter und Ende müssen eindeutig erkennbar sein. V1 muss deshalb eine formale, selbstabgrenzende Datensatzgrammatik verwenden (z. B. explizite Feldlängen und definierte Opcode-Arity). Ein doppeltes Sonderzeichen allein ist keine ausreichende Spezifikation, solange nicht ausgeschlossen ist, dass dieselbe Folge in Nutzdaten vorkommt. Die konkrete Trit-Folge für OpCodes/Framing wird im nächsten Spezifikationsschritt festgelegt.
+Reine Wertstellenbelegung ohne Rahmen reicht nicht: Programm, Zahl, Parameter und Ende müssen eindeutig erkennbar sein. Das gewählte Modell muss deshalb eine formale, selbstabgrenzende Datensatzgrammatik verwenden (z. B. explizite Feldlängen und definierte Opcode-Arity). Ein doppeltes Sonderzeichen allein ist keine ausreichende Spezifikation, solange nicht ausgeschlossen ist, dass dieselbe Folge in Nutzdaten vorkommt. Die konkrete Trit-Folge für OpCodes/Framing wird im nächsten Spezifikationsschritt festgelegt.
 
 ### 4.2 Binärvergleich ohne falschen Absolutheitsanspruch
 
@@ -93,7 +88,7 @@ Binär benötigt zwei Symbolgrößen und ist mechanisch einfacher zu klassifizie
 
 Ein FIFO-Speicher kann lang werden, aber er bietet keinen beliebigen Direktzugriff. Daten werden in Reihenfolge verarbeitet; eine bestimmte frühere Stelle ist nicht wie eine Speicheradresse sofort verfügbar. Das ist eine bewusste Architekturentscheidung und passt zur bewegten Murmelbahn. Algorithmen müssen deshalb als Durchläufe, Warteschlangenoperationen und ggf. wiederholte Scans formuliert werden.
 
-Die Programm- und Datenbereiche können logisch auf demselben Band liegen; sie brauchen aber ein eindeutiges Format, damit Nutzdaten nicht versehentlich als ausführbarer Code interpretiert werden. V1 verwendet einen festen Interpreter und einen klar markierten Programm-/Eingabeblock. Selbstverändernder Code bleibt ein späterer Modus.
+Die Programm- und Datenbereiche können logisch auf demselben Band liegen; sie brauchen aber ein eindeutiges Format, damit Nutzdaten nicht versehentlich als ausführbarer Code interpretiert werden. Der Queue-Kandidat verwendet einen festen Interpreter und einen klar markierten Programm-/Eingabeblock; der KPN-Kandidat muss Programmband, Prozesszustände und Kanäle eindeutig trennen. Selbstverändernder Code bleibt in beiden Fällen ein späterer Modus.
 
 ### 5.2 Kugeln werden nicht verwandelt
 
@@ -131,30 +126,31 @@ Fehlerziel für Prototypen: verlorene, doppelte oder fehlgeleitete Murmeln dürf
 
 ## 7. Parallelität, Unterprogramme und Selbstmodifikation
 
-V1 ist ein **deterministischer serieller Queue-Interpreter**. Mehrere Murmeln können gleichzeitig unterwegs sein, aber das bedeutet nicht, dass mehrere Berechnungen synchron laufen. Das löst die bisherige Mehrdeutigkeit zwischen „mehrere Kugeln im Schaustück“ und „echte parallele Subprogramme“.
+Die Architektur ist noch nicht entschieden. Die beiden Kandidaten unterscheiden sich gerade darin, ob mehrere Prozesse parallel arbeiten dürfen:
 
-- Keine nebenläufigen Prozesse und kein Scheduler in V1.
-- Keine Kind-Subprogramme, die gleichzeitig weiterlaufen.
-- Unterprogramme, sofern sie für das erste Programm nötig sind, laufen synchron und geben zurück, bevor der Aufrufer fortfährt; andernfalls wird das Beispielprogramm ohne Unterprogramme formuliert.
-- Selbstmodifikation ist keine Voraussetzung für Universalität. Sie wird nach dem ersten stabilen Interpreter ergänzt, weil Schreibzugriff auf Programmcode die Fehlerdiagnose und Framing deutlich erschwert.
-- Code aus berechneten Zahlen wird erst dann freigegeben, wenn die Zahlen-zu-Programm-Codierung formal festgelegt und durch den Simulator getestet ist.
+- **Queue-Kandidat:** ein deterministischer serieller Interpreter; mehrere Murmeln können gleichzeitig unterwegs sein, aber der zentrale Kopf führt jeweils einen Queue-Schritt aus.
+- **KPN-Kandidat:** mehrere Prozesse können unabhängig an ihren Kanälen fortschreiten; ein Scheduler bzw. eine feste Ausführungsregel und die Behandlung voller/leer werdender Kanäle gehören dann zur Spezifikation.
+- Dynamisch gestartete Kindprozesse sind bei keiner Variante kostenlos: Prozesskennungen, Rückgaben, Lebensdauer und knappe Kugel-/Pufferressourcen benötigen Regeln.
+- Selbstmodifikation ist keine Voraussetzung für Universalität. Sie bleibt eine Erweiterung, weil Änderungen an Programmcode die Fehlerdiagnose und Framing erschweren.
+- Code aus berechneten Zahlen wird erst freigegeben, wenn die Zahlen-zu-Programm-Codierung formal festgelegt und im gewählten Interpreter getestet ist.
 
-## 8. Primzahlprogramm und realistischer V1-Abnahmepunkt
+## 8. Primzahlprogramm und realistischer Abnahmepunkt
 
 Der erste End-to-End-Test ist ein **vollständiges Programm** für Primzahlen bis N = 30, nicht nur ein Pseudocode-Beispiel. Die Ausgabe muss exakt die zehn Referenzwerte im Abschnitt 2 enthalten und einen definierten Abschlusszustand erreichen.
 
 Empfohlene Vorgehensweise:
 
-1. Einen exakten universellen Queue-Interpreter und sein Eingabe-/Programmbandformat festlegen.
-2. Diese Regeln als Simulator implementieren.
-3. Ein Primzahlprogramm (bevorzugt Eratosthenes-Sieb; falls dessen Speicherzugriff in diesem Modell unnötig aufwendig ist, einen klar begründeten gleichwertigen Algorithmus) in der tatsächlichen Programmsprache schreiben.
-4. Simulator muss dieselben Ausgabeereignisse und dieselbe Terminierung wie die Spezifikation liefern.
-5. Erst danach die minimale Lese-/Schreib-/Weichenmechanik für die tatsächlich verwendeten Übergänge bauen.
+1. Queue-Interpreter und Bandformat **oder** KPN-Prozessgraph samt Programm-/Datenformat konkret festlegen.
+2. Beide Kandidaten als Simulatoren umsetzen, soweit nötig mit demselben Programmband-Interface.
+3. Ein Primzahlprogramm in der tatsächlichen Programmiersprache bzw. Prozessstruktur schreiben (bevorzugt Eratosthenes-Sieb; falls dessen Speicherzugriff unnötig aufwendig ist, einen klar begründeten gleichwertigen Algorithmus).
+4. Simulatoren müssen dieselben zehn Referenzwerte und einen definierten Abschlusszustand liefern; beim KPN zusätzlich gleiche Kanalinhalte unter unterschiedlichen zulässigen Prozessgeschwindigkeiten.
+5. Erst danach je ein kleiner mechanischer Test: Queue-Kopf/Einfügen am Ende sowie KPN-Actor/FIFO-Kanal mit voller/leer-Erkennung und Erweiterungssegment.
 6. Mechanische Tests und Simulator-Trace anhand einzelner Murmelereignisse vergleichen.
+
 
 Die 1.000-Zyklen-Prüfung aus dem Entwurf kann als erster Bauteiltest dienen. Für die Integration werden zusätzlich Queue-Überlauf, leerer Vorrat, Stau, Halt/Neustart und reproduzierbares Ergebnis getestet. Laufzeit ist zunächst keine Abnahmebedingung.
 
-**Nicht behauptet:** Ein vollständiges ausführbares Primzahlsieb liegt in diesem Zwischenstand noch nicht vor. Es wäre fachlich falsch, das zu behaupten, bevor Programmiersprache und konkreter Queue-Interpreter existieren.
+**Nicht behauptet:** Ein vollständiges ausführbares Primzahlsieb liegt in diesem Zwischenstand noch nicht vor. Es wäre fachlich falsch, das zu behaupten, bevor die gewählte Sprache/Netzstruktur und ihr konkreter Interpreter existieren.
 
 ## 9. Prüfung und Korrekturen am gelieferten Claude-Review
 
@@ -171,8 +167,8 @@ Die 1.000-Zyklen-Prüfung aus dem Entwurf kann als erster Bauteiltest dienen. F�
 
 1. **Architektur-Widerspruch:** Das Review schlägt als Priorität eine Turing-/Zwei-Stapel-Maschine vor, definiert aber nicht, wie ein ausschließlich vorwärts durch Schwerkraft bewegtes Band einen links/rechts wandernden Lese-/Schreibkopf simuliert. Die Queue-Architektur ist näher an der tatsächlichen Kinematik.
 2. **Turing-Programm auf Band:** Das ist nicht grundsätzlich falsch. Eine universelle Maschine kann Programm- und Eingabebeschreibung als Daten erhalten.[2] Entscheidend ist aber, dass die feste Interpreter-Mechanik definiert wird und das Bandformat eindeutig ist.
-3. **Begrenzte Puffer:** Begrenzte Puffer führen nicht automatisch immer zu Deadlock. Die klassische Kahn-Semantik setzt jedoch unbegrenzte Kanäle voraus; eine endliche Mechanik muss daher separat auf Rückstau und Blockierung analysiert werden.[8]
-4. **Leere Zelle:** „Keine Murmel“ ist in einer losen, nachrückenden Schlange kein zuverlässiges Symbol. In einer mechanisch abgegrenzten, festen Tasche wäre Abwesenheit dagegen ein stabil erkennbarer Zustand. V1 braucht keine leeren Datenzellen, wenn es als Queue arbeitet; leere Kapazität ist ein physischer Pufferzustand.
+3. **Begrenzte Puffer:** Begrenzte Puffer führen nicht automatisch immer zu Deadlock. Die klassische KPN-Semantik setzt jedoch unbegrenzte Kanäle voraus.[8] Falkos dynamische Erweiterung kann Voll-Puffer-Blockierung in einer endlichen Ausführung abfangen, wenn sie die FIFO-Reihenfolge erhält und rechtzeitig erfolgt; sie beseitigt weder leere-Eingabe-Wartezustände noch die Notwendigkeit, Kapazität/Blockierungen des ganzen Netzes zu untersuchen.[11]
+4. **Leere Zelle:** „Keine Murmel“ ist in einer losen, nachrückenden Schlange kein zuverlässiges Symbol. In einer mechanisch abgegrenzten, festen Tasche wäre Abwesenheit dagegen ein stabil erkennbarer Zustand. Der Queue-Kandidat arbeitet ohne leere Datenzellen; leere Kapazität ist dort ein physischer Pufferzustand. Bei KPN ist leere Kapazität ohnehin nur der Regelfall eines wartenden Kanals.
 5. **Signum bei balanciertem Ternär:** Das Vorzeichen ergibt sich aus dem höchstwertigen Nichtnull-Trit. Bei einer niederwertig-zuerst gelesenen Folge kennt der Kopf das Vorzeichen nicht sofort, muss aber nicht zwingend die ganze Zahl in einem separaten Speicher kopieren: Ein Durchlauf kann es feststellen, wenn die Datenorganisation das erlaubt.
 6. **FDM-Toleranzen:** Die angegebenen ±0,2 mm sind keine universelle Konstruktionsgarantie. Sie werden nicht als Fakt übernommen.
 7. **„Abschneiden = Runden“:** Als Eigenschaft der üblichen balanciert-ternären gebrochenen Darstellung gilt eine symmetrische Rundungseigenschaft mit Fehler unter ½ ULP; die Aussage sollte nicht ohne Präzisions-/Formatkontext auf jede Art von „Abschneiden“ verallgemeinert werden.[7]
@@ -182,19 +178,20 @@ Die 1.000-Zyklen-Prüfung aus dem Entwurf kann als erster Bauteiltest dienen. F�
 
 Diese Punkte können nicht seriös durch Recherche allein „wegentschieden“ werden:
 
-1. **Konkrete universelle Queue-Maschine:** Übergangstabelle, Programmdarstellung auf dem Band und Simulator müssen noch konkret festgelegt und verifiziert werden. Das ist die wichtigste verbleibende theoretische Aufgabe.
-2. **Symbolgrößen-/Paarerkennung und Schreibvorgang:** Prototyp vergleicht Ein-Murmel-Ternär, Zwei-Murmel-Ternär und Ein-Murmel-Binär mit derselben Lese-/Schreibaufgabe; Entscheidung nach Fehlerrate, Wieder-Ausrichtung, Bauteilen und Kugelzahl.
-3. **Physische Queue-Schleife:** Ein-/Ausgang, logischer Queue-Anfang/-Rand, Einfügen am Ende, Reihenfolge, Kapazität und Stauverhalten müssen als Mechanismus demonstriert werden.
-4. **Siebprogramm im Simulator:** Erst nach Punkt 1 kann ein vollständiges Programm geschrieben und seine tatsächliche Token-/Schrittzahl gemessen werden.
-5. **Abmessungen und Laufzeit:** Tisch-/Regalgröße und genaue Druckparameter werden erst aus den Prototypen und der gemessenen Queue-Kapazität abgeleitet. Sie sind keine konzeptionellen Blocker.
+1. **Konkreter Interpreter und Programmformat:** Für die Queue-Variante Übergangstabelle und Bandgrammatik; für die KPN-Variante Prozess-/Kanalformat und Interpreter-Regel. Beides braucht einen Simulator. Das ist die wichtigste verbleibende formale Aufgabe.
+2. **Modellauswahl Queue vs. KPN:** Entscheidung nach Simulator-Ressourcen (Murmelzahl, Kanalgröße, Schritte) und dem Vergleich des Bedarfs an echter Parallelität; Kriterien stehen in der Zusatzseite.
+3. **Symbolgrößen-/Paarerkennung und Schreibvorgang:** Prototyp vergleicht Ein-Murmel-Ternär, Zwei-Murmel-Ternär und Ein-Murmel-Binär mit derselben Lese-/Schreibaufgabe; Entscheidung nach Fehlerrate, Wieder-Ausrichtung, Bauteilen und Kugelzahl.
+4. **Dynamische Puffer-Erweiterung:** Ein-/Ausgang, logische FIFO-Grenze, Einfügen am Ende, Voll-/Leer-Erkennung, Reihenfolge und Verhalten bei erschöpftem Segmentvorrat müssen als Mechanismus demonstriert werden.
+5. **Siebprogramm:** Erst nach den Punkten 1–2 kann ein vollständiges Programm geschrieben und seine tatsächliche Token-/Schrittzahl gemessen werden.
+6. **Abmessungen und Laufzeit:** Tisch-/Regalgröße und genaue Druckparameter werden erst aus den Prototypen und der gemessenen Pufferkapazität abgeleitet. Sie sind keine konzeptionellen Blocker.
 
-Nicht mehr offen für V1: kein beweglicher Kopf, kein elektronisches Rechnen, keine echte Parallelität, keine Festlegung auf Zweikugel-Trits als Baseline, keine Selbstmodifikation als Voraussetzung, keine festen FDM-Toleranzen als Annahme.
+Nicht mehr offen: kein beweglicher Kopf, kein elektronisches Rechnen, keine Festlegung auf Zweikugel-Trits als Baseline, keine Selbstmodifikation als Voraussetzung, keine festen FDM-Toleranzen als Annahme.
 
 ## 11. Ergebnis
 
-Der sinnvollste nächste Stand ist ein **gravitationsbetriebener, motorisch rückgeführter, serieller Queue-Rechner** mit feststehender Lese-/Bearbeitungsstelle, austauschbarem Programm als Bandinhalt und vorläufig balanciert-ternärer Ein-Murmel-pro-Trit-Codierung. Er soll im Grenzmodell universell sein, wird aber in der ersten physischen Ausführung durch Murmelvorrat und Bahnlänge begrenzt.
+Der nächste sinnvolle Stand ist ein **gravitationsbetriebener, motorisch rückgeführter Murmelrechner**, dessen Kern entweder eine serielle Queue-Maschine oder ein Kahn-Prozessnetz mit erweiterbaren Kanälen ist. Beide Varianten setzen denselben feststehenden Kopf- bzw. Bahn-Grundsatz, dieselbe Murmelcodierungs-Baseline und denselben Primzahl-Belastungstest voraus; die Modellauswahl ist noch offen und wird durch die Zusatzseite vergleichbar gemacht.
 
-Der entscheidende nächste Schritt ist nicht CPU-/ALU-Mimik oder eine große Murmelbahn, sondern die **konkrete formale Queue-Interpreter-Spezifikation samt Simulator**. Danach ist mit einem kleinen Prototyp zu testen, ob Größe erkennen, Symbol austauschen und hinten wieder einfügen zuverlässig funktionieren. Erst wenn beides klappt, lohnt es sich, das vollständige Primzahlprogramm mechanisch auszuführen.
+Der entscheidende nächste Schritt ist nicht CPU-/ALU-Mimik oder eine möglichst große Murmelbahn, sondern der **konkrete Interpreter/Prozessgraph samt Simulator** für beide Kandidaten. Danach folgt je ein kleiner mechanischer Prototyp, um Größen-/Paarerkennung, Symbolaustausch und — bei KPN — einen erweiterbaren FIFO-Kanal zu testen. Erst wenn ein Kandidat in der Simulation und im Prototyp trägt, lohnt sich das vollständige Primzahlprogramm als mechanische Ausführung.
 
 ## Sources
 
@@ -208,3 +205,4 @@ Der entscheidende nächste Schritt ist nicht CPU-/ALU-Mimik oder eine große Mur
 [8] https://ptolemy.berkeley.edu/publications/papers/95/processNets/proceedings.pdf
 [9] https://www.ams.org/journals/mcom/2020-89-321/S0025-5718-2019-03438-5/mcom3438_AM.pdf
 [10] https://ir.cwi.nl/pub/36315/36315.pdf — The Queue Automaton Revisited (Baeten & Luttik)
+[11] https://ptolemy.berkeley.edu/publications/papers/95/parksThesis/thesis.pdf — Bounded Scheduling of Process Networks (Parks, 1995)
